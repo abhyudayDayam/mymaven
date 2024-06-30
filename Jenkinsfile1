@@ -1,0 +1,44 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage('ContDownload')
+        {
+            steps
+            {
+                git 'https://github.com/intelliqittrainings/maven.git'
+            }
+        }
+        stage('ContBuild')
+        {
+            steps
+            {
+                sh 'mvn package'
+            }
+        }
+        stage('ContDeployment')
+        {
+            steps
+            {
+                sh 'scp /home/ubuntu/.jenkins/workspace/DeclarativePipeline4/webapp/target/webapp.war ubuntu@172.31.89.191:/var/lib/tomcat10/webapps/testapp.war'
+            }
+        }
+        stage('ContTesting')
+        {
+            steps
+            {
+                git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+                sh 'java -jar /home/ubuntu/.jenkins/workspace/DeclarativePipeline4/testing.jar'
+                
+            }
+        }
+        stage('ContDelivery')
+        {
+            steps
+            {
+                sh 'scp /home/ubuntu/.jenkins/workspace/DeclarativePipeline4/webapp/target/webapp.war ubuntu@172.31.89.73:/var/lib/tomcat10/webapps/prodapp.war'
+            }
+        }
+    }
+}
